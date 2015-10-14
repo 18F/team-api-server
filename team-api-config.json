@@ -1,0 +1,9 @@
+{
+  "branch":       "master",
+  "buildPort":    6000,
+  "updatePort":   6001,
+  "git":          "/usr/bin/git",
+  "ruby":         "/usr/local/rbenv/shims/ruby",
+  "workingDir":   "/home/ubuntu/team-api/",
+  "updateScript": "/home/ubuntu/team-api/scripts/projects/update_project_from_about_yml.rb"
+}

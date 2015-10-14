@@ -1,0 +1,33 @@
+{
+  "name": "team-api-server",
+  "version": "0.0.0",
+  "description": "Imports and publishes updates to Team API data",
+  "engines": {
+    "node": ">=0.12.7"
+  },
+  "devDependencies": {
+    "chai": "^3.2.0",
+    "chai-as-promised": "^5.1.0",
+    "chai-things": "^0.2.0",
+    "gulp": "^3.9.0",
+    "gulp-mocha": "^2.1.3",
+    "jshint": "^2.8.0",
+    "mocha": "^2.2.5",
+    "mock-spawn": "^0.2.6"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/18F/team-api.git"
+  },
+  "author": "Mike Bland <michael.bland@gsa.gov>",
+  "bugs": {
+    "url": "https://github.com/18F/team-api/issues"
+  },
+  "homepage": "https://team-api.18f.gov/public/api/",
+  "license": "CC0-1.0",
+  "dependencies": {
+    "file-locked-operation": "0.0.1",
+    "hookshot": "18f/hookshot#0.1.0-with-json-options",
+    "lockfile": "^1.0.1"
+  }
+}
