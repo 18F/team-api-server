@@ -66,9 +66,9 @@ describe('fileUpdated', function() {
       .to.be.false;
   });
 
-  it('should return false when .about.yml is not affected', function() {
+  it('should return true when .about.yml is not affected', function() {
     var commits = [{'added': ['foo', 'bar'], 'modified': ['baz', 'quux']}];
-    expect(ProjectDataUpdater.fileUpdated(commits)).to.be.false;
+    expect(ProjectDataUpdater.fileUpdated(commits)).to.be.true;
   });
 
   it('should return true when .about.yml is added', function() {
