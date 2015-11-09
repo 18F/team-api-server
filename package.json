@@ -13,6 +13,7 @@
     "chai-as-promised": "^5.1.0",
     "chai-things": "^0.2.0",
     "gulp": "^3.9.0",
+    "gulp-jshint": "^1.12.0",
     "gulp-mocha": "^2.1.3",
     "jshint": "^2.8.0",
     "mocha": "^2.2.5",
@@ -31,6 +32,7 @@
   "dependencies": {
     "file-locked-operation": "0.0.1",
     "hookshot": "18f/hookshot#0.1.0-with-json-options",
-    "lockfile": "^1.0.1"
+    "lockfile": "^1.0.1",
+    "lodash": "^3.10.1"
   }
 }
