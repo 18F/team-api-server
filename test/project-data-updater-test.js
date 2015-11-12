@@ -66,9 +66,9 @@ describe('fileUpdated', function() {
       .to.be.false;
   });
 
-  it('should return true when .about.yml is not affected', function() {
+  it('should return false when .about.yml is not affected', function() {
     var commits = [{'added': ['foo', 'bar'], 'modified': ['baz', 'quux']}];
-    expect(ProjectDataUpdater.fileUpdated(commits)).to.be.true;
+    expect(ProjectDataUpdater.fileUpdated(commits)).to.be.false;
   });
 
   it('should return true when .about.yml is added', function() {
@@ -177,9 +177,7 @@ describe('ProjectDataUpdater', function() {
   describe('checkForAndImportUpdates', function() {
     it('should exit early if update is not valid', function(done) {
       var updater = makeUpdater(check(done, function(err) {
-        expect(err.message).to.equal(
-          '18F/team-api: no ' + ProjectDataUpdater.ABOUT_YML +
-          ' updates imported');
+        expect(err).to.be.true;
       }));
       updater.checkForAndImportUpdates({}, done);
       expect(mySpawn.calls.length).to.equal(0);
@@ -187,9 +185,7 @@ describe('ProjectDataUpdater', function() {
 
     it('should exit early if .about.yml was not updated', function(done) {
       var updater = makeUpdater(check(done, function(err) {
-        expect(err.message).to.equal(
-          '18F/team-api: no ' + ProjectDataUpdater.ABOUT_YML +
-          ' updates imported');
+        expect(err).to.be.true;
       }));
 
       var payload = {
