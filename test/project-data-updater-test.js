@@ -177,7 +177,8 @@ describe('ProjectDataUpdater', function() {
   describe('checkForAndImportUpdates', function() {
     it('should exit early if update is not valid', function(done) {
       var updater = makeUpdater(check(done, function(err) {
-        expect(err).to.be.true;
+        expect(err).not.to.be.null;
+        expect(err.message).to.be.blank;
       }));
       updater.checkForAndImportUpdates({}, done);
       expect(mySpawn.calls.length).to.equal(0);
@@ -185,7 +186,8 @@ describe('ProjectDataUpdater', function() {
 
     it('should exit early if .about.yml was not updated', function(done) {
       var updater = makeUpdater(check(done, function(err) {
-        expect(err).to.be.true;
+        expect(err).not.to.be.null;
+        expect(err.message).to.be.blank;
       }));
 
       var payload = {
