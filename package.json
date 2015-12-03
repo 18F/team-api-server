@@ -19,6 +19,9 @@
     "mocha": "^2.2.5",
     "mock-spawn": "^0.2.6"
   },
+  "scripts": {
+    "test": "gulp test"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/18F/team-api.git"
