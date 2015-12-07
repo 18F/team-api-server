@@ -33,5 +33,5 @@ module.exports.launchServer = function(config) {
   console.log('18F Team API - Listening on the following ports:\n' +
     config.buildPort + ' for push events on ' + config.branch + '\n' +
     config.updatePort + ' for .about.yml updates\n' +
-    config.updatePort + ' for data-private updates');
+    config.dataPort + ' for data-private updates');
 };
