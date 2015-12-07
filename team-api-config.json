@@ -2,9 +2,9 @@
   "branch": "master",
   "buildPort": 6000,
   "updatePort": 6001,
+  "dataPort": 6002,
   "git": "/usr/local/bin/hub",
   "ruby": "/Users/carlocostino/.rvm/rubies/ruby-2.2.3/bin/ruby",
-  "privateDataDir": "/Users/carlocostino/Projects/data-private",
   "workingDir": "/Users/carlocostino/Projects/team-api.18f.gov",
   "updateScript": "/Users/carlocostino/Projects/team-api.18f.gov/scripts/projects/update_project_from_about_yml.rb"
 }
