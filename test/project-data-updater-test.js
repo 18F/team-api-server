@@ -121,6 +121,19 @@ describe('ProjectDataUpdater', function() {
     });
   };
 
+  var abortIfFailureUpdater = function(errorMsg, done) {
+    mySpawn.sequence.add(mySpawn.simple(0));
+    mySpawn.sequence.add(mySpawn.simple(0));
+    mySpawn.sequence.add(mySpawn.simple(1));
+
+    return makeUpdater(function(err) {
+      process.nextTick(check(done, function() {
+        expect(mySpawn.calls.length).to.equal(3);
+        expect(err.message).to.equal(errorMsg);
+      }));
+    });
+  };
+
   describe('spawn', function() {
     it('should spawn the specified command', function() {
       var updater = makeUpdater();
@@ -228,16 +241,8 @@ describe('ProjectDataUpdater', function() {
     });
 
     it('should abort the process if a step fails', function(done) {
-      mySpawn.sequence.add(mySpawn.simple(0));
-      mySpawn.sequence.add(mySpawn.simple(0));
-      mySpawn.sequence.add(mySpawn.simple(1));
-
-      var updater = makeUpdater(function(err) {
-        process.nextTick(check(done, function() {
-          expect(mySpawn.calls.length).to.equal(3);
-          expect(err.message).to.equal('18F/team-api: failed to build site');
-        }));
-      });
+      var updater = abortIfFailureUpdater(
+        '18F/team-api: failed to build site', done);
 
       updater.checkForAndImportUpdates(validPayload());
     });
@@ -282,7 +287,7 @@ describe('ProjectDataUpdater', function() {
         expect(err).to.be.undefined;
         expect(spawnCalls()).to.eql(
           ['/usr/bin/git pull',
-           '/usr/bin/git submodule update',
+           '/usr/bin/git submodule update --remote',
            '/usr/bin/git add .',
            ['/usr/bin/git commit -m', 'Updates from',
            updater.fullName].join(' '),
@@ -293,16 +298,8 @@ describe('ProjectDataUpdater', function() {
     });
 
     it('should abort the process if a step fails', function(done) {
-      mySpawn.sequence.add(mySpawn.simple(0));
-      mySpawn.sequence.add(mySpawn.simple(0));
-      mySpawn.sequence.add(mySpawn.simple(1));
-
-      var updater = makeUpdater(function(err) {
-        process.nextTick(check(done, function() {
-          expect(mySpawn.calls.length).to.equal(3);
-          expect(err.message).to.equal('18F/team-api: failed to add updates');
-        }));
-      });
+      var updater = abortIfFailureUpdater(
+        '18F/team-api: failed to add updates', done);
 
       updater.updateDataPrivate();
     });
