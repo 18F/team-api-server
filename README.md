@@ -22,6 +22,8 @@ Team API server, and illustrates each of the following settings:
   the team-api.18f.gov repo
 * **updatePort**: the port on which the server will listen for updates to
   `.about.yml` files from other 18F repos
+* **dataPort**: the port on which the server will listen for `push` events to
+  the data-private repo
 * **git**:  path to `git` on the host machine
 * **ruby**: path to `ruby` on the host machine
 * **workingDir**: path to the 18F/team-api.18f.gov repository clone on the

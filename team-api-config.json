@@ -2,6 +2,7 @@
   "branch":       "master",
   "buildPort":    6000,
   "updatePort":   6001,
+  "dataPort":     6002,
   "git":          "/usr/bin/git",
   "ruby":         "/usr/local/rbenv/shims/ruby",
   "workingDir":   "/home/ubuntu/team-api/",
