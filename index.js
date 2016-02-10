@@ -25,13 +25,7 @@ module.exports.launchServer = function(config) {
     updater.checkForAndImportUpdates(info);
   }).listen(config.updatePort);
 
-  hookshot('push', function(info) {
-    var updater = new ProjectDataUpdater(config, info.repository, lock);
-    updater.updateDataPrivate(info);
-  }).listen(config.dataPort);
-
-  console.log('18F Team API - Listening on the following ports:\n' +
-    config.buildPort + ' for push events on ' + config.branch + '\n' +
-    config.updatePort + ' for .about.yml updates\n' +
-    config.dataPort + ' for data-private updates');
+  console.log('18F Team API: Listening on port ' + config.buildPort +
+    ' for push events on ' + config.branch + ' and port ' + config.updatePort +
+    ' for .about.yml updates.');
 };
