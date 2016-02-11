@@ -1,6 +1,6 @@
 {
   "name": "team-api-server",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Imports and publishes updates to Team API data",
   "bin": {
     "team-api": "./bin/team-api"
