@@ -1,12 +1,7 @@
 # team-api-server
 
-This server publishes static websites for [18F Pages](https://pages.18f.gov/).
-It works very similarly to [GitHub pages](https://pages.github.com/). It
-automatically publishes [Jekyll](http://jekyllrb.com/)-based web sites
-whenever updates are made to a publishing branch (like `gh-pages`, but where
-the name of the branch is defined by the server's configuration). It also
-supports publishing via [`rsync`](https://rsync.samba.org/) if the publishing
-branch does not contain a Jekyll-based site.
+Node.js server that imports and publishes updates to [Team
+API](https://team-api.18f.gov/public/api/) data.
 
 ### <a name="config"></a>Generate and configure `team-api-config.json`
 

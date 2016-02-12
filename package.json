@@ -1,9 +1,13 @@
 {
   "name": "team-api-server",
-  "version": "0.0.1",
+  "version": "0.1.1",
   "description": "Imports and publishes updates to Team API data",
   "bin": {
     "team-api": "./bin/team-api"
+  },
+  "scripts": {
+    "test": "gulp test",
+    "lint": "gulp lint"
   },
   "engines": {
     "node": ">=0.12.7"
@@ -12,10 +16,10 @@
     "chai": "^3.2.0",
     "chai-as-promised": "^5.1.0",
     "chai-things": "^0.2.0",
+    "eslint": "^1.10.3",
     "gulp": "^3.9.0",
-    "gulp-jshint": "^1.12.0",
+    "gulp-eslint": "^1.1.1",
     "gulp-mocha": "^2.1.3",
-    "jshint": "^2.8.0",
     "mocha": "^2.2.5",
     "mock-spawn": "^0.2.6"
   },
