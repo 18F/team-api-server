@@ -213,7 +213,9 @@ describe('ProjectDataUpdater', function() {
       var updater = makeUpdater(check(done, function(err) {
         expect(err).to.be.undefined;
         expect(spawnCalls()).to.eql(
-          ['/usr/bin/git pull',
+          ['/usr/bin/git fetch origin master',
+           '/usr/bin/git clean -f',
+           '/usr/bin/git reset --hard origin/master',
            ['/usr/bin/ruby', config.updateScript,
             repository.full_name, 'public',  // jshint ignore:line
             repository.default_branch].join(' '),  // jshint ignore:line
@@ -230,11 +232,13 @@ describe('ProjectDataUpdater', function() {
     it('should abort the process if a step fails', function(done) {
       mySpawn.sequence.add(mySpawn.simple(0));
       mySpawn.sequence.add(mySpawn.simple(0));
+      mySpawn.sequence.add(mySpawn.simple(0));
+      mySpawn.sequence.add(mySpawn.simple(0));
       mySpawn.sequence.add(mySpawn.simple(1));
 
       var updater = makeUpdater(function(err) {
         process.nextTick(check(done, function() {
-          expect(mySpawn.calls.length).to.equal(3);
+          expect(mySpawn.calls.length).to.equal(5);
           expect(err.message).to.equal('18F/team-api: failed to build site');
         }));
       });
@@ -247,13 +251,13 @@ describe('ProjectDataUpdater', function() {
 
       var checkCallsDoNotOverlap = checkN(2, done, function(err) {
         expect(err).to.be.undefined;
-        expect(mySpawn.calls.length).to.equal(12);
+        expect(mySpawn.calls.length).to.equal(16);
         var calls = spawnCalls();
 
         // Without a locking mechanism, every odd-numbered call will be equal
         // to the subsequent even-numbered call, rather than the first half of
         // calls equaling the second half.
-        expect(calls.slice(0, 6)).to.eql(calls.slice(6, 12));
+        expect(calls.slice(0, 8)).to.eql(calls.slice(8, 17));
       });
 
       makeUpdater(checkCallsDoNotOverlap)
@@ -268,7 +272,9 @@ describe('ProjectDataUpdater', function() {
       var updater = makeUpdater(check(done, function(err) {
         expect(err).to.be.undefined;
         expect(spawnCalls()).to.eql(
-          ['/usr/bin/git pull',
+          ['/usr/bin/git fetch origin master',
+           '/usr/bin/git clean -f',
+           '/usr/bin/git reset --hard origin/master',
            '/usr/bin/ruby ./go build']);
       }));
       mySpawn.setDefault(mySpawn.simple(0));
