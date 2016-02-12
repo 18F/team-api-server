@@ -102,9 +102,9 @@ describe('ProjectDataUpdater', function() {
     origSpawn = childProcess.spawn;
     mySpawn = mockSpawn();
     childProcess.spawn = mySpawn;
-    /* jshint ignore:start */
+    /* eslint-disable */
     repository = { default_branch: 'master', full_name: '18F/team-api' };
-    /* jshint ignore:end */
+    /* eslint-enable */
   });
 
   afterEach(function() {
