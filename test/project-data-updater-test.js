@@ -29,14 +29,14 @@ chai.use(chaiAsPromised);
 describe('isValidUpdate', function() {
   it('should return false if not from an 18F repository', function() {
     var payload = {'repository': {'full_name': 'mbland/team-api'}};
-    expect(ProjectDataUpdater.isValidUpdate(payload)).to.be.false;
+    expect(ProjectDataUpdater.isValidUpdate(payload, '18F')).to.be.false;
   });
 
   it('should return false if ref is undefined', function() {
     var payload = {
       'repository': {'full_name': '18F/team-api', 'default_branch': 'master'}
     };
-    expect(ProjectDataUpdater.isValidUpdate(payload)).to.be.false;
+    expect(ProjectDataUpdater.isValidUpdate(payload, '18F')).to.be.false;
   });
 
   it('should return false if not from the default branch', function() {
@@ -44,7 +44,7 @@ describe('isValidUpdate', function() {
       'repository': {'full_name': '18F/team-api', 'default_branch': 'master'},
       'ref': 'refs/heads/not-the-default'
     };
-    expect(ProjectDataUpdater.isValidUpdate(payload)).to.be.false;
+    expect(ProjectDataUpdater.isValidUpdate(payload, '18F')).to.be.false;
   });
 
   it('should return true if from the default branch', function() {
@@ -52,7 +52,7 @@ describe('isValidUpdate', function() {
       'repository': {'full_name': '18F/team-api', 'default_branch': 'master'},
       'ref': 'refs/heads/master'
     };
-    expect(ProjectDataUpdater.isValidUpdate(payload)).to.be.true;
+    expect(ProjectDataUpdater.isValidUpdate(payload, '18F')).to.be.true;
   });
 });
 
@@ -219,7 +219,7 @@ describe('ProjectDataUpdater', function() {
            ['/usr/bin/ruby', config.updateScript,
             repository.full_name, 'public',  // jshint ignore:line
             repository.default_branch].join(' '),  // jshint ignore:line
-           '/usr/bin/ruby ./go build',
+           '/usr/bin/ruby /usr/local/18f/team-api/team-api.18f.gov/go build',
            '/usr/bin/git add .',
            ['/usr/bin/git commit -m', ProjectDataUpdater.ABOUT_YML,
             'import from 18F/team-api'].join(' '),
@@ -275,7 +275,7 @@ describe('ProjectDataUpdater', function() {
           ['/usr/bin/git fetch origin master',
            '/usr/bin/git clean -f',
            '/usr/bin/git reset --hard origin/master',
-           '/usr/bin/ruby ./go build']);
+           '/usr/bin/ruby /usr/local/18f/team-api/team-api.18f.gov/go build']);
       }));
       mySpawn.setDefault(mySpawn.simple(0));
       updater.pullChangesAndRebuild();
