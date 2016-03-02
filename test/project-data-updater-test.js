@@ -14,8 +14,9 @@ var updateLock = require('file-locked-operation');
 var testHelper = require('./test-helper.js');
 
 var config = require('../team-api-config.json');
-config.git = '/usr/bin/git';
 config.ruby = '/usr/bin/ruby';
+config.bundler = '/usr/bin/bundler';
+config.git = '/usr/bin/git';
 config.updateScript = path.resolve(path.dirname(__dirname),
   'scripts', 'projects', 'update_project_from_about_yml.rb');
 
@@ -29,14 +30,14 @@ chai.use(chaiAsPromised);
 describe('isValidUpdate', function() {
   it('should return false if not from an 18F repository', function() {
     var payload = {'repository': {'full_name': 'mbland/team-api'}};
-    expect(ProjectDataUpdater.isValidUpdate(payload)).to.be.false;
+    expect(ProjectDataUpdater.isValidUpdate(payload, '18F')).to.be.false;
   });
 
   it('should return false if ref is undefined', function() {
     var payload = {
       'repository': {'full_name': '18F/team-api', 'default_branch': 'master'}
     };
-    expect(ProjectDataUpdater.isValidUpdate(payload)).to.be.false;
+    expect(ProjectDataUpdater.isValidUpdate(payload, '18F')).to.be.false;
   });
 
   it('should return false if not from the default branch', function() {
@@ -44,7 +45,7 @@ describe('isValidUpdate', function() {
       'repository': {'full_name': '18F/team-api', 'default_branch': 'master'},
       'ref': 'refs/heads/not-the-default'
     };
-    expect(ProjectDataUpdater.isValidUpdate(payload)).to.be.false;
+    expect(ProjectDataUpdater.isValidUpdate(payload, '18F')).to.be.false;
   });
 
   it('should return true if from the default branch', function() {
@@ -52,7 +53,7 @@ describe('isValidUpdate', function() {
       'repository': {'full_name': '18F/team-api', 'default_branch': 'master'},
       'ref': 'refs/heads/master'
     };
-    expect(ProjectDataUpdater.isValidUpdate(payload)).to.be.true;
+    expect(ProjectDataUpdater.isValidUpdate(payload, '18F')).to.be.true;
   });
 });
 
@@ -148,7 +149,7 @@ describe('ProjectDataUpdater', function() {
       return updater.importUpdates()
         .should.be.fulfilled.then(function() {
           expect(spawnCalls()).to.eql(
-            [['/usr/bin/ruby', config.updateScript,
+            [['/usr/bin/bundler', 'exec', config.updateScript,
               repository.full_name, 'private',  // jshint ignore:line
               repository.default_branch].join(' ')]);  // jshint ignore:line
         });
@@ -160,7 +161,7 @@ describe('ProjectDataUpdater', function() {
       return updater.importUpdates()
         .should.be.fulfilled.then(function() {
           expect(spawnCalls()).to.eql(
-            [['/usr/bin/ruby', config.updateScript,
+            [['/usr/bin/bundler', 'exec', config.updateScript,
               repository.full_name, 'public',  // jshint ignore:line
               repository.default_branch].join(' ')]);  // jshint ignore:line
         });
@@ -216,10 +217,11 @@ describe('ProjectDataUpdater', function() {
           ['/usr/bin/git fetch origin master',
            '/usr/bin/git clean -f',
            '/usr/bin/git reset --hard origin/master',
-           ['/usr/bin/ruby', config.updateScript,
+           '/usr/bin/bundler install --path=' + path.join('vendor', 'bundle'),
+           ['/usr/bin/bundler', 'exec', config.updateScript,
             repository.full_name, 'public',  // jshint ignore:line
             repository.default_branch].join(' '),  // jshint ignore:line
-           '/usr/bin/ruby ./go build',
+           '/usr/bin/ruby /usr/local/18f/team-api/team-api.18f.gov/go build',
            '/usr/bin/git add .',
            ['/usr/bin/git commit -m', ProjectDataUpdater.ABOUT_YML,
             'import from 18F/team-api'].join(' '),
@@ -234,11 +236,12 @@ describe('ProjectDataUpdater', function() {
       mySpawn.sequence.add(mySpawn.simple(0));
       mySpawn.sequence.add(mySpawn.simple(0));
       mySpawn.sequence.add(mySpawn.simple(0));
+      mySpawn.sequence.add(mySpawn.simple(0));
       mySpawn.sequence.add(mySpawn.simple(1));
 
       var updater = makeUpdater(function(err) {
         process.nextTick(check(done, function() {
-          expect(mySpawn.calls.length).to.equal(5);
+          expect(mySpawn.calls.length).to.equal(6);
           expect(err.message).to.equal('18F/team-api: failed to build site');
         }));
       });
@@ -251,13 +254,13 @@ describe('ProjectDataUpdater', function() {
 
       var checkCallsDoNotOverlap = checkN(2, done, function(err) {
         expect(err).to.be.undefined;
-        expect(mySpawn.calls.length).to.equal(16);
+        expect(mySpawn.calls.length).to.equal(18);
         var calls = spawnCalls();
 
         // Without a locking mechanism, every odd-numbered call will be equal
         // to the subsequent even-numbered call, rather than the first half of
         // calls equaling the second half.
-        expect(calls.slice(0, 8)).to.eql(calls.slice(8, 17));
+        expect(calls.slice(0, 9)).to.eql(calls.slice(9, 19));
       });
 
       makeUpdater(checkCallsDoNotOverlap)
@@ -275,7 +278,8 @@ describe('ProjectDataUpdater', function() {
           ['/usr/bin/git fetch origin master',
            '/usr/bin/git clean -f',
            '/usr/bin/git reset --hard origin/master',
-           '/usr/bin/ruby ./go build']);
+           '/usr/bin/bundler install --path=' + path.join('vendor', 'bundle'),
+           '/usr/bin/ruby /usr/local/18f/team-api/team-api.18f.gov/go build']);
       }));
       mySpawn.setDefault(mySpawn.simple(0));
       updater.pullChangesAndRebuild();

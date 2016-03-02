@@ -1,9 +1,11 @@
 {
+  "gitHubOrg":    "18F",
   "branch":       "master",
   "buildPort":    6000,
   "updatePort":   6001,
   "git":          "/usr/bin/git",
   "ruby":         "/usr/local/rbenv/shims/ruby",
-  "workingDir":   "/home/ubuntu/team-api/",
-  "updateScript": "/home/ubuntu/team-api/scripts/projects/update_project_from_about_yml.rb"
+  "bundler":      "/usr/local/rbenv/shims/bundler",
+  "workingDir":   "/usr/local/18f/team-api/team-api.18f.gov/",
+  "updateScript": "/usr/local/18f/team-api/team-api.18f.gov/scripts/projects/update_project_from_about_yml.rb"
 }
