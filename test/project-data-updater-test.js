@@ -231,19 +231,23 @@ describe('ProjectDataUpdater', function() {
     });
 
     it('separate updates should not overlap', function() {
-      mySpawn.setDefault(mySpawn.simple(0));
+      var firstUpdate = makeUpdater()
+            .checkForAndImportUpdates(validPayload()),
+          secondUpdate = makeUpdater()
+            .checkForAndImportUpdates(validPayload());
 
-      makeUpdater().checkForAndImportUpdates(validPayload());
-      return makeUpdater().checkForAndImportUpdates(validPayload())
-        .should.be.fulfilled.then(function() {
+      mySpawn.setDefault(mySpawn.simple(0));
+      return firstUpdate.should.be.fulfilled.then(function() {
+        return secondUpdate.should.be.fulfilled.then(function() {
           expect(mySpawn.calls.length).to.equal(18);
           var calls = spawnCalls();
 
           // Without a locking mechanism, every odd-numbered call will be
-          // equal to the subsequent even-numbered call, rather than the first
-          // half of calls equaling the second half.
+          // equal to the subsequent even-numbered call, rather than the
+          // first half of calls equaling the second half.
           expect(calls.slice(0, 9)).to.eql(calls.slice(9, 19));
         });
+      });
     });
   });
 
