@@ -21,7 +21,8 @@
     "gulp-eslint": "^1.1.1",
     "gulp-mocha": "^2.1.3",
     "mocha": "^2.2.5",
-    "mock-spawn": "^0.2.6"
+    "mock-spawn": "^0.2.6",
+    "temp": "^0.8.3"
   },
   "repository": {
     "type": "git",
@@ -34,7 +35,7 @@
   "homepage": "https://team-api.18f.gov/public/api/",
   "license": "CC0-1.0",
   "dependencies": {
-    "file-locked-operation": "0.0.1",
+    "file-locked-operation": "1.0.0",
     "hookshot": "18f/hookshot#0.1.0-with-json-options",
     "lockfile": "^1.0.1"
   }

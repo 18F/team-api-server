@@ -6,12 +6,12 @@
 var path = require('path');
 var ProjectDataUpdater = require(
   path.resolve(path.dirname(__dirname), 'lib', 'project-data-updater.js'));
+var FileLockedOperation = require('file-locked-operation');
 var chai = require('chai');
 var chaiAsPromised = require('chai-as-promised');
 var childProcess = require('child_process');
 var mockSpawn = require('mock-spawn');
-var updateLock = require('file-locked-operation');
-var testHelper = require('./test-helper.js');
+var temp = require('temp');
 
 var config = require('../team-api-config.json');
 config.ruby = '/usr/bin/ruby';
@@ -19,9 +19,6 @@ config.bundler = '/usr/bin/bundler';
 config.git = '/usr/bin/git';
 config.updateScript = path.resolve(path.dirname(__dirname),
   'scripts', 'projects', 'update_project_from_about_yml.rb');
-
-var check = testHelper.check;
-var checkN = testHelper.checkN;
 
 var expect = chai.expect;
 chai.should();
@@ -95,8 +92,7 @@ describe('ProjectDataUpdater', function() {
   var origSpawn, mySpawn, repository, lock;
 
   before(function() {
-    lock = new updateLock.FileLockedOperation(
-      path.resolve(__dirname, '.test-lock'));
+    lock = new FileLockedOperation(temp.path());
   });
 
   beforeEach(function() {
@@ -112,8 +108,8 @@ describe('ProjectDataUpdater', function() {
     childProcess.spawn = origSpawn;
   });
 
-  var makeUpdater = function(done) {
-    return new ProjectDataUpdater(config, repository, lock, done);
+  var makeUpdater = function() {
+    return new ProjectDataUpdater(config, repository, lock);
   };
 
   var spawnCalls = function() {
@@ -124,18 +120,16 @@ describe('ProjectDataUpdater', function() {
 
   describe('spawn', function() {
     it('should spawn the specified command', function() {
-      var updater = makeUpdater();
       mySpawn.sequence.add(mySpawn.simple(0));
-      return updater.spawn('do stuff', '/usr/bin/foo', ['bar', 'baz'])
+      return makeUpdater().spawn('do stuff', '/usr/bin/foo', ['bar', 'baz'])
         .should.be.fulfilled.then(function() {
           expect(spawnCalls()).to.eql(['/usr/bin/foo bar baz']);
         });
     });
 
     it('should pass an error to the callback on nonzero exit', function() {
-      var updater = makeUpdater();
       mySpawn.sequence.add(mySpawn.simple(1));
-      return updater.spawn('do stuff', '/usr/bin/foo', ['bar', 'baz'])
+      return makeUpdater().spawn('do stuff', '/usr/bin/foo', ['bar', 'baz'])
         .should.be.rejectedWith(Error, '18F/team-api: failed to do stuff');
     });
   });
@@ -143,10 +137,8 @@ describe('ProjectDataUpdater', function() {
   describe('importUpdates', function() {
     it('should spawn the update script for a private repo', function() {
       repository.private = true;
-
-      var updater = makeUpdater();
       mySpawn.sequence.add(mySpawn.simple(0));
-      return updater.importUpdates()
+      return makeUpdater().importUpdates()
         .should.be.fulfilled.then(function() {
           expect(spawnCalls()).to.eql(
             [['/usr/bin/bundler', 'exec', config.updateScript,
@@ -156,9 +148,8 @@ describe('ProjectDataUpdater', function() {
     });
 
     it('should spawn the update script for a public repo', function() {
-      var updater = makeUpdater();
       mySpawn.sequence.add(mySpawn.simple(0));
-      return updater.importUpdates()
+      return makeUpdater().importUpdates()
         .should.be.fulfilled.then(function() {
           expect(spawnCalls()).to.eql(
             [['/usr/bin/bundler', 'exec', config.updateScript,
@@ -168,36 +159,30 @@ describe('ProjectDataUpdater', function() {
     });
 
     it('should return an error if the update script fails', function() {
-      var updater = makeUpdater();
       mySpawn.sequence.add(mySpawn.simple(1));
-      return updater.importUpdates()
+      return makeUpdater().importUpdates()
         .should.be.rejectedWith('18F/team-api: failed to import updates');
     });
   });
 
   describe('checkForAndImportUpdates', function() {
-    it('should exit early if update is not valid', function(done) {
-      var updater = makeUpdater(check(done, function(err) {
-        expect(err).not.to.be.null;
-        expect(err.message).to.be.blank;
-      }));
-      updater.checkForAndImportUpdates({}, done);
-      expect(mySpawn.calls.length).to.equal(0);
+    it('should exit early if update is not valid', function() {
+      return makeUpdater().checkForAndImportUpdates({}).should.be.fulfilled
+        .then(function() {
+          expect(mySpawn.calls.length).to.equal(0);
+        });
     });
 
-    it('should exit early if .about.yml was not updated', function(done) {
-      var updater = makeUpdater(check(done, function(err) {
-        expect(err).not.to.be.null;
-        expect(err.message).to.be.blank;
-      }));
-
+    it('should exit early if .about.yml was not updated', function() {
       var payload = {
         'repository': {'full_name': '18F/team-api', 'default_branch': 'master'},
         'ref': 'refs/heads/master', 'commits': []
       };
 
-      updater.checkForAndImportUpdates(payload, done);
-      expect(mySpawn.calls.length).to.equal(0);
+      return makeUpdater().checkForAndImportUpdates(payload)
+        .should.be.fulfilled.then(function() {
+          expect(mySpawn.calls.length).to.equal(0);
+        });
     });
 
     var validPayload = function() {
@@ -208,30 +193,29 @@ describe('ProjectDataUpdater', function() {
       };
     };
 
-    it('should complete the update when all is well', function(done) {
+    it('should complete the update when all is well', function() {
       mySpawn.setDefault(mySpawn.simple(0));
-
-      var updater = makeUpdater(check(done, function(err) {
-        expect(err).to.be.undefined;
-        expect(spawnCalls()).to.eql(
-          ['/usr/bin/git fetch origin master',
-           '/usr/bin/git clean -f',
-           '/usr/bin/git reset --hard origin/master',
-           '/usr/bin/bundler install --path=' + path.join('vendor', 'bundle'),
-           ['/usr/bin/bundler', 'exec', config.updateScript,
-            repository.full_name, 'public',  // jshint ignore:line
-            repository.default_branch].join(' '),  // jshint ignore:line
-           '/usr/bin/ruby /usr/local/18f/team-api/team-api.18f.gov/go build',
-           '/usr/bin/git add .',
-           ['/usr/bin/git commit -m', ProjectDataUpdater.ABOUT_YML,
-            'import from 18F/team-api'].join(' '),
-           '/usr/bin/git push']);
-      }));
-
-      updater.checkForAndImportUpdates(validPayload());
+      return makeUpdater().checkForAndImportUpdates(validPayload())
+        .should.be.fulfilled
+        .then(function() {
+          expect(spawnCalls()).to.eql(
+            ['/usr/bin/git fetch origin master',
+             '/usr/bin/git clean -f',
+             '/usr/bin/git reset --hard origin/master',
+             '/usr/bin/bundler install --path=' +
+               path.join('vendor', 'bundle'),
+             ['/usr/bin/bundler', 'exec', config.updateScript,
+              repository.full_name, 'public',  // jshint ignore:line
+              repository.default_branch].join(' '),  // jshint ignore:line
+             '/usr/bin/ruby /usr/local/18f/team-api/team-api.18f.gov/go build',
+             '/usr/bin/git add .',
+             ['/usr/bin/git commit -m', ProjectDataUpdater.ABOUT_YML,
+              'import from 18F/team-api'].join(' '),
+             '/usr/bin/git push']);
+        });
     });
 
-    it('should abort the process if a step fails', function(done) {
+    it('should abort the process if a step fails', function() {
       mySpawn.sequence.add(mySpawn.simple(0));
       mySpawn.sequence.add(mySpawn.simple(0));
       mySpawn.sequence.add(mySpawn.simple(0));
@@ -239,50 +223,44 @@ describe('ProjectDataUpdater', function() {
       mySpawn.sequence.add(mySpawn.simple(0));
       mySpawn.sequence.add(mySpawn.simple(1));
 
-      var updater = makeUpdater(function(err) {
-        process.nextTick(check(done, function() {
+      return makeUpdater().checkForAndImportUpdates(validPayload())
+        .should.be.rejectedWith('18F/team-api: failed to build site')
+        .then(function() {
           expect(mySpawn.calls.length).to.equal(6);
-          expect(err.message).to.equal('18F/team-api: failed to build site');
-        }));
-      });
-
-      updater.checkForAndImportUpdates(validPayload());
+        });
     });
 
-    it('separate updates should not overlap', function(done) {
+    it('separate updates should not overlap', function() {
       mySpawn.setDefault(mySpawn.simple(0));
 
-      var checkCallsDoNotOverlap = checkN(2, done, function(err) {
-        expect(err).to.be.undefined;
-        expect(mySpawn.calls.length).to.equal(18);
-        var calls = spawnCalls();
+      makeUpdater().checkForAndImportUpdates(validPayload());
+      return makeUpdater().checkForAndImportUpdates(validPayload())
+        .should.be.fulfilled.then(function() {
+          expect(mySpawn.calls.length).to.equal(18);
+          var calls = spawnCalls();
 
-        // Without a locking mechanism, every odd-numbered call will be equal
-        // to the subsequent even-numbered call, rather than the first half of
-        // calls equaling the second half.
-        expect(calls.slice(0, 9)).to.eql(calls.slice(9, 19));
-      });
-
-      makeUpdater(checkCallsDoNotOverlap)
-        .checkForAndImportUpdates(validPayload());
-      makeUpdater(checkCallsDoNotOverlap)
-        .checkForAndImportUpdates(validPayload());
+          // Without a locking mechanism, every odd-numbered call will be
+          // equal to the subsequent even-numbered call, rather than the first
+          // half of calls equaling the second half.
+          expect(calls.slice(0, 9)).to.eql(calls.slice(9, 19));
+        });
     });
   });
 
   describe('pullChangesAndRebuild', function() {
-    it('should execute git pull and ./go build', function(done) {
-      var updater = makeUpdater(check(done, function(err) {
-        expect(err).to.be.undefined;
-        expect(spawnCalls()).to.eql(
-          ['/usr/bin/git fetch origin master',
-           '/usr/bin/git clean -f',
-           '/usr/bin/git reset --hard origin/master',
-           '/usr/bin/bundler install --path=' + path.join('vendor', 'bundle'),
-           '/usr/bin/ruby /usr/local/18f/team-api/team-api.18f.gov/go build']);
-      }));
+    it('should execute git pull and ./go build', function() {
       mySpawn.setDefault(mySpawn.simple(0));
-      updater.pullChangesAndRebuild();
+      return makeUpdater().pullChangesAndRebuild()
+        .should.be.fulfilled.then(function() {
+          expect(spawnCalls()).to.eql(
+            ['/usr/bin/git fetch origin master',
+             '/usr/bin/git clean -f',
+             '/usr/bin/git reset --hard origin/master',
+             '/usr/bin/bundler install --path=' +
+               path.join('vendor', 'bundle'),
+             '/usr/bin/ruby /usr/local/18f/team-api/team-api.18f.gov/go ' +
+               'build']);
+        });
     });
   });
 });
