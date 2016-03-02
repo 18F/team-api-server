@@ -1,5 +1,6 @@
 {
   "gitHubOrg":    "18F",
+  "repoFullName": "18F/team-api.18f.gov",
   "branch":       "master",
   "buildPort":    6000,
   "updatePort":   6001,

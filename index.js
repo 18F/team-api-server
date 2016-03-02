@@ -18,8 +18,15 @@ module.exports.launchServer = function(config) {
       importHook;
 
   buildHook = hookshot('refs/heads/' + config.branch, function(info) {
-    var updater = new ProjectDataUpdater(config, info.repository, lock),
-        done = logResult('rebuild after update to ' + config.branch);
+    var updater,
+        done;
+
+    if (!(info.ref && info.ref.repository.full_name === config.repoFullName)) {
+      return;
+    }
+    updater = new ProjectDataUpdater(config, info.repository, lock);
+    done = logResult('rebuild after update to ' + config.repoFullName);
+    console.log('rebuilding after update to ' + config.repoFullName);
     return updater.pullChangesAndRebuild().then(done, done);
   });
   buildHook.listen(config.buildPort);
@@ -32,8 +39,9 @@ module.exports.launchServer = function(config) {
   });
   importHook.listen(config.updatePort);
 
-  console.log('18F Team API: Listening on port ' + config.buildPort +
-    ' for push events on ' + config.branch + ' and port ' + config.updatePort +
+  console.log(module.exports.versionString() +
+    ': Listening on port ' + config.buildPort + ' for push events on ' +
+    config.branch + ' and port ' + config.updatePort +
     ' for .about.yml updates.');
 };
 
