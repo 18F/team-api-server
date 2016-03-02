@@ -18,15 +18,17 @@ module.exports.launchServer = function(config) {
       importHook;
 
   buildHook = hookshot('refs/heads/' + config.branch, function(info) {
-    var updater = new ProjectDataUpdater(config, info.repository, lock);
-    console.log('rebuilding after update to ' + config.branch);
-    updater.pullChangesAndRebuild();
+    var updater = new ProjectDataUpdater(config, info.repository, lock),
+        done = logResult('rebuild after update to ' + config.branch);
+    return updater.pullChangesAndRebuild().then(done, done);
   });
   buildHook.listen(config.buildPort);
 
   importHook = hookshot('push', function(info) {
-    var updater = new ProjectDataUpdater(config, info.repository, lock);
-    updater.checkForAndImportUpdates(info);
+    var updater = new ProjectDataUpdater(config, info.repository, lock),
+        done = logResult(updater.fullName + ' ' +
+          ProjectDataUpdater.ABOUT_YML);
+    return updater.checkForAndImportUpdates(info).then(done, done);
   });
   importHook.listen(config.updatePort);
 
@@ -34,3 +36,16 @@ module.exports.launchServer = function(config) {
     ' for push events on ' + config.branch + ' and port ' + config.updatePort +
     ' for .about.yml updates.');
 };
+
+function logResult(operation) {
+  return function(result) {
+    return Promise(function(resolve, reject) {
+      if (result instanceof Error) {
+        console.error(operation + 'failed: ' + result.message);
+        return reject(result);
+      }
+      console.log(operation + ' succeeded');
+      return resolve(result);
+    });
+  };
+}
