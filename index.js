@@ -21,7 +21,7 @@ module.exports.launchServer = function(config) {
     var updater,
         done;
 
-    if (!(info.ref && info.ref.repository.full_name === config.repoFullName)) {
+    if (!(info.ref && info.repository.full_name === config.repoFullName)) {
       return;
     }
     updater = new ProjectDataUpdater(config, info.repository, lock);
