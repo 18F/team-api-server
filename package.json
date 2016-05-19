@@ -37,6 +37,7 @@
   "dependencies": {
     "file-locked-operation": "1.0.0",
     "hookshot": "18f/hookshot#0.1.0-with-json-options",
-    "lockfile": "^1.0.1"
+    "lockfile": "^1.0.1",
+    "request": "^2.72.0"
   }
 }
