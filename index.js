@@ -1,59 +1,49 @@
-/* jshint node: true */
-'use strict';
+/*
+ listens for webhooks from 18F repos,
+    sees if their `.about.yml` has changed, and,
+ if so, uses the GitHub API to copy its contents to
+    `_data/projects/<project-name>.yml`
+    in the 18F/https://github.com/18F/team-api.18f.gov repo
 
-var path = require('path');
-var ProjectDataUpdater = require('./lib/project-data-updater.js');
-var FileLockedOperation = require('file-locked-operation');
-var hookshot = require('hookshot');
-var packageInfo = require('./package.json');
+- update to node 5.x.x (whatever cloud.gov supports)
+- config from environment variables
+  - org to watch
+  - destination repo
+  - destination path in destination repo
+  - port
+- tests
 
-module.exports.versionString = function() {
-  return packageInfo.name + ' v' + packageInfo.version;
-};
+ */
 
-module.exports.launchServer = function(config) {
-  var lockFilePath = path.resolve(config.workingDir, '.update-lock'),
-      lock = new FileLockedOperation(lockFilePath),
-      buildHook,
-      importHook;
+const githooked = require('githooked');
 
-  buildHook = hookshot('refs/heads/' + config.branch, function(info) {
-    var updater,
-        done;
+const env = require('./lib/env');
+const util = require('./lib/util');
 
-    if (!(info.ref && info.repository.full_name === config.repoFullName)) {
-      return;
-    }
-    updater = new ProjectDataUpdater(config, info.repository, lock);
-    done = logResult('rebuild after update to ' + config.repoFullName);
-    console.log('rebuilding after update to ' + config.repoFullName);
-    return updater.pullChangesAndRebuild().then(done, done);
-  });
-  buildHook.listen(config.buildPort);
+githooked('push', (payload) => {
+  console.log('received the push event');
 
-  importHook = hookshot('push', function(info) {
-    var updater = new ProjectDataUpdater(config, info.repository, lock),
-        done = logResult(updater.fullName + ' ' +
-          ProjectDataUpdater.ABOUT_YML);
-    return updater.checkForAndImportUpdates(info).then(done, done);
-  });
-  importHook.listen(config.updatePort);
+  if (util.isTargetUpdate(payload, {
+    githubOrg: env.GITHUB_ORG, targetFile: env.TARGET_FILE,
+  })) {
+    console.log('it\'s an update');
+  }
 
-  console.log(module.exports.versionString() +
-    ': Listening on port ' + config.buildPort + ' for push events on ' +
-    config.branch + ' and port ' + config.updatePort +
-    ' for .about.yml updates.');
-};
-
-function logResult(operation) {
-  return function(result) {
-    return Promise(function(resolve, reject) {
-      if (result instanceof Error) {
-        console.error(operation + 'failed: ' + result.message);
-        return reject(result);
-      }
-      console.log(operation + ' succeeded');
-      return resolve(result);
-    });
-  };
-}
+  // const commit = util.getTargetModifiedCommit(payload);
+  // if (commit) {
+  //   console.log(`  -- "${env.TARGET_FILE}" has been modified in commit ${commit.id}`);
+  //
+  //   // grab the target file from the repo
+  //   util.getTarget(payload)
+  //     .then((result) => {
+  //       console.log(result);
+  //     })
+  //     .catch((err) => {
+  //       console.error(err);
+  //     });
+  // }
+}, {
+  json: {
+    limit: '5mb', // max Github webhook payload size, ref https://developer.github.com/webhooks/
+  },
+}).listen(env.PORT);
