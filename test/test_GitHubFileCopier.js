@@ -8,6 +8,7 @@ const fileCopier = new GitHubFileCopier({
   targetFile: '.about.yml',
   destinationRepo: 'test-org/destination',
   destinationPath: 'destination-path/',
+  destinationBranch: 'master',
 });
 
 

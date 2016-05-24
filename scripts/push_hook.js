@@ -1,3 +1,6 @@
+/**
+ * Test script for locally sending a mock GitHub push webhook
+ */
 
 const rp = require('request-promise');
 
@@ -9,5 +12,5 @@ rp.post({
   url: `http://localhost:${env.PORT}`,
   json: payload,
 }).catch((err) => {
-  console.error(`Error POSTing to ${env.TARGET} - ${err}`);
+  console.error(`Error POSTing mock webhook: ${err}`);
 });

@@ -32,8 +32,10 @@
   "homepage": "https://team-api.18f.gov/public/api/",
   "license": "CC0-1.0",
   "dependencies": {
+    "dotenv": "^2.0.0",
     "githooked": "^1.1.1",
     "request-promise": "^3.0.0",
+    "winston": "^2.2.0",
     "yaml-js": "^0.1.3"
   }
 }
