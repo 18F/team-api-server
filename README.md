@@ -40,7 +40,7 @@ export PORT=6000
 1. Fork the repo (or just clone it if you're an 18F team member)
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Make your changes and test them via `npm test`
-4. Lint your changes
+4. Lint your changes with either `npm run lint` or the editor plugin of your choice. This project uses eslint.
 5. Commit your changes (`git commit -am 'Add some feature'`)
 6. Push to the branch (`git push origin my-new-feature`)
 7. Create a new Pull Request
