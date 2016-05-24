@@ -1,19 +1,10 @@
-/*
- listens for webhooks from 18F repos,
-    sees if their `.about.yml` has changed, and,
- if so, uses the GitHub API to copy its contents to
-    `_data/projects/<project-name>.yml`
-    in the 18F/https://github.com/18F/team-api.18f.gov repo
-
-- update to node 5.x.x (whatever cloud.gov supports)
-- config from environment variables
-  - org to watch
-  - destination repo
-  - destination path in destination repo
-  - port
-- tests
-
- */
+/**
+ * This is a small server that listens for push webhooks from GitHuh repos,
+ *  checks if a target YAML file (like `.about.yml`) has changed,
+ *  and, if so, uses the GitHub API to copy its contents to
+ *  a destination repo at a specified path, such as
+ *  `_data/projects/<project-name>.yml`.
+*/
 
 const githooked = require('githooked');
 const yaml = require('js-yaml');
@@ -62,6 +53,6 @@ githooked('push', (payload) => {
   json: {
     limit: '5mb', // max Github webhook payload size, ref https://developer.github.com/webhooks/
   },
-}).listen(env.PORT, (s) => {
+}).listen(env.PORT, () => {
   logger.info(`Listening for 'push' hooks on port ${env.PORT}`);
 });

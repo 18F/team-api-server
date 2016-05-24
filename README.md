@@ -13,9 +13,10 @@ a target file (typically `.about.yml`) and updates a destination repo with the c
 1. `npm install` to install dependencies.
 1. `npm run dev-start` to start an auto-restarting server.
 
-You can run `node scripts/push_hook.js` to send a test payload to your running application.
+Run `npm test` to do a single run of the test suite.
+Run `npm run dev-test` to run the test suite continuously as changes are made.
 
-Run `npm test` to run the test suite.
+You can run `node scripts/push_hook.js` to send a test payload to your running application.
 
 ### In Production
 

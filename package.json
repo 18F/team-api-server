@@ -6,7 +6,7 @@
     "start": "node index.js",
     "test": "tap test/*.js",
     "dev-start": "nodemon index.js",
-    "dev-test": "nodemon -x 'tape test/*'"
+    "dev-test": "nodemon -x 'tap test/*.js'"
   },
   "engines": {
     "node": "^5.10.0"
@@ -18,7 +18,9 @@
     "eslint-plugin-jsx-a11y": "^1.2.2",
     "eslint-plugin-react": "^5.1.1",
     "istanbul": "^0.4.3",
+    "mockery": "^1.7.0",
     "nodemon": "^1.9.2",
+    "sinon": "^1.17.4",
     "tap": "^5.7.2",
     "tape": "^4.5.1"
   },
