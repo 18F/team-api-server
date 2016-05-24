@@ -16,17 +16,32 @@
  */
 
 const githooked = require('githooked');
+const yaml = require('js-yaml');
 
 const env = require('./lib/env');
-const util = require('./lib/util');
+const GitHubFileCopier = require('./lib/GitHubFileCopier');
+
+const fileCopier = new GitHubFileCopier({
+  githubOrg: env.GITHUB_ORG,
+  targetFile: env.TARGET_FILE,
+  destinationRepo: env.DESTINATION_REPO,
+  destinationPath: env.DESTINATION_PATH,
+});
 
 githooked('push', (payload) => {
   console.log('received the push event');
 
-  if (util.isTargetUpdate(payload, {
-    githubOrg: env.GITHUB_ORG, targetFile: env.TARGET_FILE,
-  })) {
-    console.log('it\'s an update');
+  if (fileCopier.wasTargetUpdated(payload)) {
+    fileCopier.getTarget(payload)
+      .then((result) => {
+        const buf = new Buffer(result.content, result.encoding);
+        const contents = buf.toString();
+        const jsonContents = yaml.load(contents);
+        fileCopier.putTarget(payload, `${jsonContents.name}.yml`)
+          .then(() => {
+
+          })
+      });
   }
 
   // const commit = util.getTargetModifiedCommit(payload);

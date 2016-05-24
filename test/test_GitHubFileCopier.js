@@ -1,15 +1,18 @@
 
 const test = require('tape');
 
-const util = require('../lib/util');
+const GitHubFileCopier = require('../lib/GitHubFileCopier');
 
-const validOptions = {
+const fileCopier = new GitHubFileCopier({
   githubOrg: 'test-org',
   targetFile: '.about.yml',
-};
+  destinationRepo: 'test-org/destination',
+  destinationPath: 'destination-path/',
+});
+
 
 const validPayload = {
-  ref: 'refs/head/master',
+  ref: 'refs/heads/master',
   repository: {
     full_name: 'test-org/test-repo',
     default_branch: 'master',
@@ -20,22 +23,22 @@ const validPayload = {
 };
 
 
-test('isTargetUpdate', (t) => {
-  t.equal(util.isTargetUpdate(validPayload, validOptions), true);
+test('wasTargetUpdated', (t) => {
+  t.equal(fileCopier.wasTargetUpdated(validPayload), true);
 
-  t.equal(util.isTargetUpdate({
+  t.equal(fileCopier.wasTargetUpdated({
     ref: 'refs/head/master',
     repository: {
       full_name: 'bad-org/bad-repo',
       default_branch: 'master',
     },
-  }, validOptions), false);
+  }), false);
 
-  t.equal(util.isTargetUpdate({
+  t.equal(fileCopier.wasTargetUpdated({
     ref: 'refs/head/master',
     repository: validPayload.repository,
     commits: [],
-  }, validOptions), false);
+  }), false);
 
   t.end();
 });
