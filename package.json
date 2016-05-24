@@ -4,7 +4,7 @@
   "description": "Imports and publishes updates to Team API data",
   "scripts": {
     "start": "node index.js",
-    "test": "tape 'test/**/*.js'",
+    "test": "tap test/*.js",
     "dev-start": "nodemon index.js",
     "dev-test": "nodemon -x 'tape test/*'"
   },
@@ -19,6 +19,7 @@
     "eslint-plugin-react": "^5.1.1",
     "istanbul": "^0.4.3",
     "nodemon": "^1.9.2",
+    "tap": "^5.7.2",
     "tape": "^4.5.1"
   },
   "repository": {
