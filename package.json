@@ -26,11 +26,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/18F/team-api.18f.gov.git"
+    "url": "git+https://github.com/18F/team-api-server.git"
   },
   "author": "Mike Bland <michael.bland@gsa.gov>",
   "bugs": {
-    "url": "https://github.com/18F/team-api.18f.gov/issues"
+    "url": "https://github.com/18F/team-api-server/issues"
   },
   "homepage": "https://team-api.18f.gov/public/api/",
   "license": "CC0-1.0",
