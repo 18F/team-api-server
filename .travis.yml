@@ -1,5 +1,5 @@
 language: node_js
 node_js:
 - node
-- '4.2'
-script: npm run lint && npm test
+- '5.10.0'
+script: npm test

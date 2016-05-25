@@ -1,59 +1,58 @@
-/* jshint node: true */
-'use strict';
+/**
+ * This is a small server that listens for push webhooks from GitHuh repos,
+ * checks if a target YAML file (like `.about.yml`) has changed,
+ * and, if so, uses the GitHub API to copy its contents to
+ * a destination repo at a specified path, such as
+ * `_data/projects/<project-name>.yml`.
+ */
 
-var path = require('path');
-var ProjectDataUpdater = require('./lib/project-data-updater.js');
-var FileLockedOperation = require('file-locked-operation');
-var hookshot = require('hookshot');
-var packageInfo = require('./package.json');
+const githooked = require('githooked');
+const yaml = require('js-yaml');
+const winston = require('winston');
 
-module.exports.versionString = function() {
-  return packageInfo.name + ' v' + packageInfo.version;
-};
+const env = require('./lib/env');
+const GitHubFileCopier = require('./lib/GitHubFileCopier');
 
-module.exports.launchServer = function(config) {
-  var lockFilePath = path.resolve(config.workingDir, '.update-lock'),
-      lock = new FileLockedOperation(lockFilePath),
-      buildHook,
-      importHook;
+const logger = new (winston.Logger)({
+  transports: [
+    new (winston.transports.Console)({ timestamp: true }),
+  ],
+});
 
-  buildHook = hookshot('refs/heads/' + config.branch, function(info) {
-    var updater,
-        done;
+const fileCopier = new GitHubFileCopier({
+  githubOrg: env.GITHUB_ORG,
+  githubUser: env.GITHUB_USER,
+  githubAccessToken: env.GITHUB_ACCESS_TOKEN,
+  targetFile: env.TARGET_FILE,
+  destinationRepo: env.DESTINATION_REPO,
+  destinationPath: env.DESTINATION_PATH,
+  destinationBranch: env.DESTINATION_BRANCH,
+});
 
-    if (!(info.ref && info.repository.full_name === config.repoFullName)) {
-      return;
-    }
-    updater = new ProjectDataUpdater(config, info.repository, lock);
-    done = logResult('rebuild after update to ' + config.repoFullName);
-    console.log('rebuilding after update to ' + config.repoFullName);
-    return updater.pullChangesAndRebuild().then(done, done);
-  });
-  buildHook.listen(config.buildPort);
+githooked('push', (payload) => {
+  if (fileCopier.wasTargetUpdated(payload)) {
+    logger.info(`Valid push hook received from ${payload.repository.full_name}`);
 
-  importHook = hookshot('push', function(info) {
-    var updater = new ProjectDataUpdater(config, info.repository, lock),
-        done = logResult(updater.fullName + ' ' +
-          ProjectDataUpdater.ABOUT_YML);
-    return updater.checkForAndImportUpdates(info).then(done, done);
-  });
-  importHook.listen(config.updatePort);
+    fileCopier.getTarget(payload)
+      .then((target) => {
+        const buf = new Buffer(target.content, target.encoding);
+        const contents = buf.toString();
+        const jsonContents = yaml.load(contents);
 
-  console.log(module.exports.versionString() +
-    ': Listening on port ' + config.buildPort + ' for push events on ' +
-    config.branch + ' and port ' + config.updatePort +
-    ' for .about.yml updates.');
-};
-
-function logResult(operation) {
-  return function(result) {
-    return Promise(function(resolve, reject) {
-      if (result instanceof Error) {
-        console.error(operation + 'failed: ' + result.message);
-        return reject(result);
-      }
-      console.log(operation + ' succeeded');
-      return resolve(result);
-    });
-  };
-}
+        return fileCopier.putTarget(payload, target, `${jsonContents.name}.yml`)
+          .then(() => {
+            logger.info(`Successfully copied ${env.TARGET_FILE} to ${env.DESTINATION_REPO}`);
+          });
+      })
+      .catch((err) => {
+        logger.error(`Error copying ${env.TARGET_FILE} to ${env.DESTINATION_REPO}:`);
+        logger.error(err);
+      });
+  }
+}, {
+  json: {
+    limit: '5mb', // max Github webhook payload size, ref https://developer.github.com/webhooks/
+  },
+}).listen(env.PORT, () => {
+  logger.info(`Listening for 'push' hooks on port ${env.PORT}`);
+});
