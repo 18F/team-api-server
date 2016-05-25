@@ -35,6 +35,23 @@ export TARGET_FILE=.about.yml
 export PORT=6000
 ```
 
+### On Cloud.gov
+
+For Cloud.gov deployments, this project makes use of a Custom User Provided Service (CUPS) to get its configuration variables instead of reading from a `.env` file or from the local environment.
+
+You will need to create a CUPS, provide 'credentials' to it, and link it to the application instance.
+
+Here is what you will probably need to do (assuming you have an application instance named `team-api-server`):
+
+```sh
+cf cups team-api-server-env -p "GITHUB_USER, GITHUB_ACCESS_TOKEN, GITHUB_ORG, DESTINATION_REPO"
+# You will then be prompted to provide values for the listed credentials
+
+cf bind-service team-api-server team-api-server-env
+cf restage team-api-server
+```
+
+
 ## Contributing
 
 1. Fork the repo (or just clone it if you're an 18F team member)
