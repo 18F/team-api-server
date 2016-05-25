@@ -32,7 +32,7 @@ const fileCopier = new GitHubFileCopier({
 githooked('push', (payload) => {
   if (fileCopier.wasTargetUpdated(payload)) {
     logger.info(`Valid push hook received from ${payload.repository.full_name}`);
-
+    console.log('test')
     fileCopier.getTarget(payload)
       .then((target) => {
         const buf = new Buffer(target.content, target.encoding);
