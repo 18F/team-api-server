@@ -8,16 +8,10 @@
 
 const githooked = require('githooked');
 const yaml = require('js-yaml');
-const winston = require('winston');
 
 const env = require('./lib/env');
 const GitHubFileCopier = require('./lib/GitHubFileCopier');
-
-const logger = new (winston.Logger)({
-  transports: [
-    new (winston.transports.Console)({ timestamp: true }),
-  ],
-});
+const logger = require('./lib/logger');
 
 const fileCopier = new GitHubFileCopier({
   githubOrg: env.GITHUB_ORG,
