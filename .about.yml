@@ -98,3 +98,7 @@ contact:
   text: James Seppi
 - url: https://github.com/18F/team-api-server/issues
   text: 18F/team-api-server issues
+
+tags:
+- webhook
+- team-api
