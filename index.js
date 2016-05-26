@@ -27,8 +27,12 @@ githooked('push', (payload) => {
   if (fileCopier.wasTargetUpdated(payload)) {
     logger.info(`Valid push hook received from ${payload.repository.full_name}`);
 
-    fileCopier.getTarget(payload)
+    fileCopier.getTargetContents(payload)
       .then((target) => {
+        if (!target) {
+          throw new Error('target file not found');
+        }
+
         const buf = new Buffer(target.content, target.encoding);
         const contents = buf.toString();
         const jsonContents = yaml.load(contents);
