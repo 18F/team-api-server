@@ -1,7 +1,7 @@
 {
   "name": "team-api-server",
   "version": "0.2.0",
-  "description": "Imports and publishes updates to Team API data",
+  "description": "Webhook handler that listens for changes on .about.yml files and pushes updates to a destination repo.",
   "scripts": {
     "start": "node index.js",
     "test": "tap test/*.js",
@@ -29,7 +29,11 @@
     "type": "git",
     "url": "git+https://github.com/18F/team-api-server.git"
   },
-  "author": "Mike Bland <michael.bland@gsa.gov>",
+  "author": "James Seppi <james.seppi@gsa.gov>",
+  "contributors": [
+    "Atul Varma <atul.varma@gsa.gov>",
+    "Mike Bland"
+  ],
   "bugs": {
     "url": "https://github.com/18F/team-api-server/issues"
   },
