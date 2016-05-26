@@ -1,7 +1,7 @@
 {
   "name": "team-api-server",
   "version": "0.2.0",
-  "description": "Webhook handler that listens for changes on .about.yml files and pushes updates to a destination repo.",
+  "description": "Webhook handling server that listens for changes on .about.yml files and pushes updates to a destination repo.",
   "scripts": {
     "start": "node index.js",
     "test": "tap test/*.js",

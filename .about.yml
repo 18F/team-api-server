@@ -27,7 +27,7 @@ stage: live
 status: active
 
 # Description of the project
-description: Webhook handler that listens for changes on .about.yml files and pushes updates to a destination repo. 
+description: Webhook handling server that listens for changes on .about.yml files and pushes updates to a destination repo.
 
 # Should be 'true' if the project has a continuous build (required)
 # values: true, false
