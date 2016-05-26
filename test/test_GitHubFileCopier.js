@@ -66,8 +66,37 @@ test('getUpdateCommit', (t) => {
   t.end();
 });
 
+test('getFileContents', (t) => {
+  const fileCopier = new GitHubFileCopier(copierArgs);
 
-test('getTarget', (t) => {
+  t.plan(3);
+
+  fileCopier.rp.get = (opts) => {
+    const p = new Promise((resolve, reject) => {
+      if (opts.url === 'https://valid.example.com') {
+        resolve(JSON.stringify({ prop: 'value' }));
+      } else {
+        reject(new Error('Not found'));
+      }
+    });
+    return p;
+  };
+
+  fileCopier.getFileContents('https://valid.example.com')
+    .then((result) => {
+      console.log('here', result);
+      t.ok(result);
+      t.equals(result.prop, 'value', 'returns JSON of the resolved value');
+    });
+
+  fileCopier.getFileContents('https://not-valid.example.com')
+    .then((result) => {
+      t.notOk(result, 'returns null for an invalid url');
+    });
+});
+
+
+test('getTargetContents', (t) => {
   const fileCopier = new GitHubFileCopier(copierArgs);
 
   const payload = {
@@ -84,7 +113,7 @@ test('getTarget', (t) => {
     });
   };
 
-  fileCopier.getTarget(payload)
+  fileCopier.getTargetContents(payload)
     .then((result) => {
       t.ok(result);
       t.equals(result.prop, 'value', 'returns JSON of the resolved value');
@@ -108,18 +137,35 @@ test('putTarget', (t) => {
     content: 'content',
     sha: 'abcde',
   };
+  const destination = {
+    content: 'old-content',
+    sha: 'uvwxyz',
+  };
+
   const destinationFile = 'destination.yml';
+
+  const destinationUrl = `${copierArgs.githubOrg}/${copierArgs.destinationRepo}`
+    + `/contents/${copierArgs.destinationPath}/${destinationFile}`;
 
   t.plan(6);
 
+  fileCopier.getFileContents = (url) => {
+    const p = new Promise((resolve) => {
+      if (url === destinationUrl) {
+        resolve(destination);
+      } else {
+        resolve(null);
+      }
+    });
+    return p;
+  };
+
   fileCopier.rp.put = (opts) => {
-    t.equals(opts.url,
-      `${copierArgs.githubOrg}/${copierArgs.destinationRepo}`
-      + `/contents/${copierArgs.destinationPath}/${destinationFile}`,
-      'uses correct api url to PUT the target file');
+    t.equals(opts.url, destinationUrl, 'uses correct api url to PUT the target file');
 
     t.equals(opts.json.content, target.content, 'target content is sent');
-    t.equals(opts.json.sha, target.sha, 'target sha is sent');
+    t.equals(opts.json.sha, destination.sha,
+      'destination sha is sent when destination file exists');
     t.equals(opts.json.branch, copierArgs.destinationBranch, 'destinationBranch is sent');
     t.ok(opts.json.message.indexOf('aUsername') !== -1,
       'commit message contains committer username');
