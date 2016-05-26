@@ -29,6 +29,9 @@ export GITHUB_USER=<GitHub username>
 export GITHUB_ACCESS_TOKEN=<GitHub access token with 'repo' scope>
 export GITHUB_ORG=<GitHub organization name>
 export DESTINATION_REPO=<GitHub organization name>
+
+# The following variables have defaults as specified, so you only need to
+# specify them if your values are different
 export DESTINATION_PATH=_data/projects
 export DESTINATION_BRANCH=master
 export TARGET_FILE=.about.yml

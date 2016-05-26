@@ -2,6 +2,7 @@
 *.log
 .*.swp
 .env
+npm-debug.log
 coverage/*
 node_modules/
 scripts/
