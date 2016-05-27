@@ -84,7 +84,6 @@ test('getFileContents', (t) => {
 
   fileCopier.getFileContents('https://valid.example.com')
     .then((result) => {
-      console.log('here', result);
       t.ok(result);
       t.equals(result.prop, 'value', 'returns JSON of the resolved value');
     });
