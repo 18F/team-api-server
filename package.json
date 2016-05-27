@@ -7,7 +7,8 @@
     "test": "tap test/*.js",
     "lint": "eslint **/*.js; exit 0;",
     "dev-start": "nodemon index.js",
-    "dev-test": "nodemon -x 'tap test/*.js'"
+    "dev-test": "nodemon -x 'tap test/*.js'",
+    "coverage": "tap --coverage-report=text-lcov test/*.js > lcov.info"
   },
   "engines": {
     "node": "^5.10.0"
@@ -18,7 +19,6 @@
     "eslint-plugin-import": "^1.8.0",
     "eslint-plugin-jsx-a11y": "^1.2.2",
     "eslint-plugin-react": "^5.1.1",
-    "istanbul": "^0.4.3",
     "mockery": "^1.7.0",
     "nodemon": "^1.9.2",
     "sinon": "^1.17.4",

@@ -2,6 +2,6 @@
 *.log
 .*.swp
 .env
-npm-debug.log
-coverage/*
 node_modules/
+.nyc_output/
+lcov.info
