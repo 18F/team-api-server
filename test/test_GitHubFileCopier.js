@@ -66,35 +66,6 @@ test('getUpdateCommit', (t) => {
   t.end();
 });
 
-test('getFileContents', (t) => {
-  const fileCopier = new GitHubFileCopier(copierArgs);
-
-  t.plan(3);
-
-  fileCopier.rp.get = (opts) => {
-    const p = new Promise((resolve, reject) => {
-      if (opts.url === 'https://valid.example.com') {
-        resolve(JSON.stringify({ prop: 'value' }));
-      } else {
-        reject(new Error('Not found'));
-      }
-    });
-    return p;
-  };
-
-  fileCopier.getFileContents('https://valid.example.com')
-    .then((result) => {
-      t.ok(result);
-      t.equals(result.prop, 'value', 'returns JSON of the resolved value');
-    });
-
-  fileCopier.getFileContents('https://not-valid.example.com')
-    .then((result) => {
-      t.notOk(result, 'returns null for an invalid url');
-    });
-});
-
-
 test('getTargetContents', (t) => {
   const fileCopier = new GitHubFileCopier(copierArgs);
 
@@ -108,7 +79,7 @@ test('getTargetContents', (t) => {
     t.equals(opts.url, `${payload.repository.full_name}/contents/${copierArgs.targetFile}`,
       'uses correct api path to GET the target');
     return new Promise((resolve) => {
-      resolve(JSON.stringify({ prop: 'value' }));
+      resolve({ prop: 'value' });
     });
   };
 
@@ -148,9 +119,9 @@ test('putTarget', (t) => {
 
   t.plan(6);
 
-  fileCopier.getFileContents = (url) => {
+  fileCopier.rp.get = (opts) => {
     const p = new Promise((resolve) => {
-      if (url === destinationUrl) {
+      if (opts.url === destinationUrl) {
         resolve(destination);
       } else {
         resolve(null);
