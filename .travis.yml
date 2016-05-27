@@ -1,5 +1,10 @@
+before_install:
+- npm install -g codeclimate-test-reporter
 language: node_js
 node_js:
 - node
 - '5.10.0'
 script: npm test
+after_script:
+- npm run coverage
+- codeclimate-test-reporter < lcov.info
