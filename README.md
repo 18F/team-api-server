@@ -35,7 +35,7 @@ export DESTINATION_REPO=<GitHub organization name>
 export DESTINATION_PATH=_data/projects
 export DESTINATION_BRANCH=master
 export TARGET_FILE=.about.yml
-export PORT=6000
+export PORT=3000
 ```
 
 ### On Cloud.gov

@@ -8,6 +8,7 @@
 
 const githooked = require('githooked');
 const yaml = require('js-yaml');
+const express = require('express');
 
 const env = require('./lib/env');
 const GitHubFileCopier = require('./lib/GitHubFileCopier');
@@ -23,7 +24,7 @@ const fileCopier = new GitHubFileCopier({
   destinationBranch: env.DESTINATION_BRANCH,
 });
 
-githooked('push', (payload) => {
+function handlePush(payload) {
   if (fileCopier.wasTargetUpdated(payload)) {
     logger.info(`Valid push hook received from ${payload.repository.full_name}`);
 
@@ -47,10 +48,18 @@ githooked('push', (payload) => {
         logger.error(err);
       });
   }
-}, {
-  json: {
-    limit: '5mb', // max Github webhook payload size, ref https://developer.github.com/webhooks/
-  },
-}).listen(env.PORT, () => {
-  logger.info(`Listening for 'push' hooks on port ${env.PORT}`);
+}
+
+const app = express();
+
+app.get('/ping', (req, res) => {
+  res.send('ok');
+});
+
+// setup githooked with json limit of 5mb, the max Github webhook payload size
+// ref https://developer.github.com/webhooks/
+app.use('/', githooked('push', handlePush, { json: { limit: '5mb' } }));
+
+app.listen(env.PORT, () => {
+  logger.info(`team-api-server started on port ${env.PORT}`);
 });
