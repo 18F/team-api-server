@@ -67,6 +67,10 @@ app.get('/ping', (req, res) => {
 // ref https://developer.github.com/webhooks/
 app.use('/', githooked('push', handlePush, { json: { limit: '5mb' } }));
 
-app.listen(env.PORT, () => {
-  logger.info(`team-api-server started on port ${env.PORT}`);
-});
+if (require.main === module) {
+  app.listen(env.PORT, () => {
+    logger.info(`team-api-server started on port ${env.PORT}`);
+  });
+}
+
+module.exports = app;
