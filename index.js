@@ -52,6 +52,13 @@ function handlePush(payload) {
 
 const app = express();
 
+app.use((req, res, next) => {
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  next();
+});
+
 app.get('/ping', (req, res) => {
   res.send('ok');
 });
