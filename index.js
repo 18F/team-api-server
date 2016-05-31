@@ -52,6 +52,13 @@ function handlePush(payload) {
 
 const app = express();
 
+app.use((req, res, next) => {
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  next();
+});
+
 app.get('/ping', (req, res) => {
   res.send('ok');
 });
@@ -60,6 +67,10 @@ app.get('/ping', (req, res) => {
 // ref https://developer.github.com/webhooks/
 app.use('/', githooked('push', handlePush, { json: { limit: '5mb' } }));
 
-app.listen(env.PORT, () => {
-  logger.info(`team-api-server started on port ${env.PORT}`);
-});
+if (require.main === module) {
+  app.listen(env.PORT, () => {
+    logger.info(`team-api-server started on port ${env.PORT}`);
+  });
+}
+
+module.exports = app;
