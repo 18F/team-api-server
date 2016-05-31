@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/18F/team-api-server.svg?branch=master)](https://travis-ci.org/18F/team-api-server)
 
-[![Code Climate](https://codeclimate.com/github/18F/team-api-server.png)](https://codeclimate.com/github/18F/team-api-server)
+[![Code Climate](https://codeclimate.com/github/18F/team-api-server/badges/gpa.svg)](https://codeclimate.com/github/18F/team-api-server)
 
 Node.js server that listens for GitHub push webhooks with modifications to
 a target file (typically `.about.yml`) and updates a destination repo with the contents of that file, renamed as `<project_name>.yml`.
