@@ -9,6 +9,7 @@ const payload = require('./fixtures/push_payload.json');
 class MockGitHubFileCopier { }
 
 mockery.registerMock('../lib/GitHubFileCopier', MockGitHubFileCopier);
+mockery.registerMock('./lib/env', {});
 
 mockery.enable({
   warnOnUnregistered: false,
