@@ -1,10 +1,20 @@
+'use strict'; // eslint-disable-line
 
 const test = require('tape');
 const supertest = require('supertest');
-
-const app = require('../index');
+const mockery = require('mockery');
 
 const payload = require('./fixtures/push_payload.json');
+
+class MockGitHubFileCopier { }
+
+mockery.registerMock('../lib/GitHubFileCopier', MockGitHubFileCopier);
+
+mockery.enable({
+  warnOnUnregistered: false,
+});
+
+const app = require('../index');
 
 test('doesn\'t GET /', (t) => {
   supertest(app)
