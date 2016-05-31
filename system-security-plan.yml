@@ -4,11 +4,11 @@ uniqueID: <MB number – see https://docs.google.com/spreadsheets/d/1hjCYIskgD_x
 version: <application version>
 # descriptions:
 # https://18f.gsa.gov/dashboard/
-phase: <discovery|alpha|beta|live>
+phase: discovery
 # `D26 Civilian Operations` is most common for 18F projects.
 # http://csrc.nist.gov/publications/nistpubs/800-60-rev1/SP800-60_Vol1-Rev1.pdf#page=23
 information-types:
-- <Dxx + name>
+- D26 Civilian Operations
 
 # https://pages.18f.gov/before-you-ship/ato/levels/
 confidentiality: <none|low|moderate|high>
@@ -51,14 +51,14 @@ staff:
     email: james.seppi@gsa.gov
 leveraged-authorizations:
 - https://www.fedramp.gov/marketplace/compliant-systems/amazon-web-services-aws-eastwest-us-public-cloud/
-purpose: <link to README>
+purpose: https://github.com/18F/team-api-server/blob/master/README.md
 components:
 - <link to item under https://18f.gsa.gov/dashboard/>
 - <links to repositories>
 
 # these will be the same unless your architecture is especially complex
-system-diagram: <link>
-network-diagram: <link>
+system-diagram: https://docs.google.com/drawings/d/12DgRhpxW64CZ-uAzqG6eGiGKDOZEzPKPH2F888mZ3xo/view
+network-diagram: https://docs.google.com/drawings/d/12DgRhpxW64CZ-uAzqG6eGiGKDOZEzPKPH2F888mZ3xo/view
 
 environments:
 - Cloud Foundry
