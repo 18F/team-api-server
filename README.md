@@ -49,17 +49,34 @@ export PORT=3000
 
 ### On Cloud.gov
 
-For Cloud.gov deployments, this project makes use of a Custom User Provided Service (CUPS) to get its configuration variables instead of reading from a `.env` file or from the local environment.
+For Cloud.gov deployments, this project makes use of a custom User Provided Service  to get its configuration variables instead of reading from a `.env` file or from the local environment. You will need to create a user provided service, provide 'credentials' to it, and link it to the application instance.
 
-You will need to create a CUPS, provide 'credentials' to it, and link it to the application instance.
+First, create a file called `credentials.json` with all the configuration values specified:
 
-Here is what you will probably need to do (assuming you have an application instance named `team-api-server`):
+```json
+{
+  "NEW_RELIC_APP_NAME": "<New Relic app name>",
+  "NEW_RELIC_LICENSE_KEY": "<New Relic license key>",
+  "GITHUB_ORG": "<GitHub organization name>",
+  "GITHUB_USER": "<GitHub username>",
+  "GITHUB_ACCESS_TOKEN": "<GitHub access token with 'repo' scope>",
+  "WEBHOOK_SECRET": "<Webhook secret key>",
+  "DESTINATION_REPO": "<Destination repo name>"
+}
+```
+
+Then enter the following commands (assuming you already have an application instance named `team-api-server`):
 
 ```sh
-cf cups team-api-server-env -p "NEW_RELIC_APP_NAME, NEW_RELIC_LICENSE_KEY, GITHUB_USER, GITHUB_ACCESS_TOKEN, GITHUB_ORG, DESTINATION_REPO, WEBHOOK_SECRET"
-# You will then be prompted to provide values for the listed credentials
-
+cf cups team-api-server-env -p credentials.json
 cf bind-service team-api-server team-api-server-env
+cf restage team-api-server
+```
+
+You can update the user provided service with the following commands:
+
+```sh
+cf uups team-api-server-env -p credentials.json
 cf restage team-api-server
 ```
 

@@ -1,5 +1,5 @@
 /**
- * This is a small server that listens for push webhooks from GitHuh repos,
+ * This is a small server that listens for push webhooks from GitHub repos,
  * checks if a target YAML file (like `.about.yml`) has changed,
  * and, if so, uses the GitHub API to copy its contents to
  * a destination repo at a specified path, such as
