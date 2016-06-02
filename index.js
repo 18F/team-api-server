@@ -11,6 +11,11 @@ const yaml = require('js-yaml');
 const express = require('express');
 
 const env = require('./lib/env');
+
+if (env.NEW_RELIC_LICENSE_KEY) {
+  require('newrelic'); // eslint-disable-line global-require
+}
+
 const GitHubFileCopier = require('./lib/GitHubFileCopier');
 const logger = require('./lib/logger');
 
