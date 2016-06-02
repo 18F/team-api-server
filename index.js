@@ -6,13 +6,19 @@
  * `_data/projects/<project-name>.yml`.
  */
 
+const env = require('./lib/env');
+const logger = require('./lib/logger');
+
+if (env.NEW_RELIC_LICENSE_KEY && env.NEW_RELIC_APP_NAME) {
+  logger.info(`Enabling New Relic monitoring for app name "${env.NEW_RELIC_APP_NAME}"`);
+  require('newrelic'); // eslint-disable-line global-require
+}
+
 const githooked = require('githooked');
 const yaml = require('js-yaml');
 const express = require('express');
 
-const env = require('./lib/env');
 const GitHubFileCopier = require('./lib/GitHubFileCopier');
-const logger = require('./lib/logger');
 
 const fileCopier = new GitHubFileCopier({
   githubOrg: env.GITHUB_ORG,

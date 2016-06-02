@@ -47,7 +47,7 @@ You will need to create a CUPS, provide 'credentials' to it, and link it to the 
 Here is what you will probably need to do (assuming you have an application instance named `team-api-server`):
 
 ```sh
-cf cups team-api-server-env -p "GITHUB_USER, GITHUB_ACCESS_TOKEN, GITHUB_ORG, DESTINATION_REPO"
+cf cups team-api-server-env -p "NEW_RELIC_APP_NAME, NEW_RELIC_LICENSE_KEY, GITHUB_USER, GITHUB_ACCESS_TOKEN, GITHUB_ORG, DESTINATION_REPO"
 # You will then be prompted to provide values for the listed credentials
 
 cf bind-service team-api-server team-api-server-env
