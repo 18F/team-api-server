@@ -43,10 +43,13 @@ function handlePush(payload) {
         const buf = new Buffer(target.content, target.encoding);
         const contents = buf.toString();
         const jsonContents = yaml.load(contents);
-
-        return fileCopier.putTarget(payload, target, `${jsonContents.name}.yml`)
+        const name = `${jsonContents.name}.yml`;
+        return fileCopier.putTarget(payload, target, name)
           .then(() => {
-            logger.info(`Successfully copied ${env.TARGET_FILE} to ${env.DESTINATION_REPO}`);
+            logger.info(`Successfully copied ${env.TARGET_FILE}`
+              + ` from ${payload.repository.full_name}`
+              + ` to ${env.DESTINATION_REPO}/${env.DESTINATION_PATH}/${name}`
+            );
           });
       })
       .catch((err) => {
@@ -71,7 +74,24 @@ app.get('/ping', (req, res) => {
 
 // setup githooked with json limit of 5mb, the max Github webhook payload size
 // ref https://developer.github.com/webhooks/
-app.use('/', githooked('push', handlePush, { json: { limit: '5mb' } }));
+const hookOptions = {
+  json: { limit: '5mb' },
+};
+
+// if WEBHOOK_SECRET has been specified add it as a config param
+// to githooked options
+if (env.WEBHOOK_SECRET) {
+  hookOptions.secret = env.WEBHOOK_SECRET;
+} else {
+  logger.info('WEBHOOK_SECRET not provided. Specify WEBHOOK_SECRET for increased security.');
+}
+
+const pushHook = githooked('push', handlePush, hookOptions);
+pushHook.on('error', (err) => {
+  logger.error(err.toString());
+});
+
+app.use('/', pushHook);
 
 if (require.main === module) {
   app.listen(env.PORT, () => {
