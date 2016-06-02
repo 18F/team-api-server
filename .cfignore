@@ -6,3 +6,4 @@ npm-debug.log
 coverage/*
 node_modules/
 scripts/
+setup_webhook.png

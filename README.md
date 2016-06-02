@@ -7,6 +7,14 @@
 Node.js server that listens for GitHub push webhooks with modifications to
 a target file (typically `.about.yml`) and updates a destination repo with the contents of that file, renamed as `<project_name>.yml`.
 
+## Using
+
+If you or someone in your organization has setup an team-api-server, add its address as a webhook in your
+GitHub repo's settings. Specify the content type as `application/json`. Select `Just the push event` as the event type.
+If your team-api-server is using a webhook secret (which it should), then make sure to also specify that shared secret.
+
+![Webhook setup](setup_webhook.png)
+
 ## Running
 
 ### In development
@@ -29,6 +37,7 @@ export GITHUB_USER=<GitHub username>
 export GITHUB_ACCESS_TOKEN=<GitHub access token with 'repo' scope>
 export GITHUB_ORG=<GitHub organization name>
 export DESTINATION_REPO=<GitHub organization name>
+export WEBHOOK_SECRET=<Webhook secret key> #optional, but highly recommended
 
 # The following variables have defaults as specified, so you only need to
 # specify them if your values are different
@@ -47,13 +56,12 @@ You will need to create a CUPS, provide 'credentials' to it, and link it to the 
 Here is what you will probably need to do (assuming you have an application instance named `team-api-server`):
 
 ```sh
-cf cups team-api-server-env -p "NEW_RELIC_APP_NAME, NEW_RELIC_LICENSE_KEY, GITHUB_USER, GITHUB_ACCESS_TOKEN, GITHUB_ORG, DESTINATION_REPO"
+cf cups team-api-server-env -p "NEW_RELIC_APP_NAME, NEW_RELIC_LICENSE_KEY, GITHUB_USER, GITHUB_ACCESS_TOKEN, GITHUB_ORG, DESTINATION_REPO, WEBHOOK_SECRET"
 # You will then be prompted to provide values for the listed credentials
 
 cf bind-service team-api-server team-api-server-env
 cf restage team-api-server
 ```
-
 
 ## Contributing
 
